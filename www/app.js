@@ -1,37 +1,33 @@
+import init, { WebSynth } from './../pkg/synthesizer.js';
+
+/** @type {AudioContext | null} */
 let audioCtx = null;
-let synthPtr = 0;
-let wasmExports = null;
+
+/** @type {WebSynth | null} */
+let synth = null;
+
 let isPlaying = false;
 
-async function initWasm() {
+async function initSynth() {
     try {
-        const response = await fetch('../target/wasm32-unknown-unknown/debug/synthesizer.wasm');
-        const bytes = await response.arrayBuffer();
+        // 1. Initialize the WASM module
+        await init();
 
-        const { instance } = await WebAssembly.instantiate(bytes, {});
-        wasmExports = instance.exports;
-
-        document.getElementById('status').innerText = 'Status: WASM Loaded. Click button to start audio!';
-    } catch (err) {
-        console.error(err);
-        document.getElementById('status').innerText = 'Status: Failed to load WASM';
-    }
-}
-
-async function startAudio() {
-    if (!audioCtx) {
+        // 2. Create audio context
         audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 44100 });
-        synthPtr = wasmExports.synth_create(audioCtx.sampleRate);
 
-        // ScriptProcessorNode to pull samples from Rust
+        // 3. Create our Rust synth object instance directly using JS 'new'!
+        synth = new WebSynth(audioCtx.sampleRate);
+
+        // 4. Set up ScriptProcessor to pull samples
         const bufferSize = 4096;
         const scriptNode = audioCtx.createScriptProcessor(bufferSize, 0, 1);
 
         scriptNode.onaudioprocess = (e) => {
             const channelData = e.outputBuffer.getChannelData(0);
             for (let i = 0; i < channelData.length; i++) {
-                if (isPlaying && synthPtr !== 0) {
-                    channelData[i] = wasmExports.synth_next_sample(synthPtr);
+                if (isPlaying && synth !== null) {
+                    channelData[i] = synth.next_sample();
                 } else {
                     channelData[i] = 0;
                 }
@@ -39,27 +35,34 @@ async function startAudio() {
         };
 
         scriptNode.connect(audioCtx.destination);
-    }
-
-    if (audioCtx.state === 'suspended') {
-        await audioCtx.resume();
+        document.getElementById('status').innerText = 'Status: Ready & Running!';
+    } catch (err) {
+        console.error(err);
+        document.getElementById('status').innerText = 'Status: Failed to initialize WASM';
     }
 }
 
 const btn = document.getElementById('noteBtn');
 
 btn.addEventListener('mousedown', async () => {
-    await startAudio();
+    if (!audioCtx) {
+        await initSynth();
+    }
+    if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+    }
     isPlaying = true;
-    wasmExports.synth_note_on(synthPtr, 440.0); // A4
+    if (synth !== null) {
+        synth.note_on(440.0); // A4
+    }
     btn.classList.add('active');
     btn.innerText = 'Playing (440Hz)...';
 });
 
 btn.addEventListener('mouseup', () => {
-    if (synthPtr !== 0) {
+    if (synth !== null) {
         isPlaying = false;
-        wasmExports.synth_note_off(synthPtr);
+        synth.note_off();
     }
     btn.classList.remove('active');
     btn.innerText = 'Hold to Play Note';
@@ -67,13 +70,14 @@ btn.addEventListener('mouseup', () => {
 
 btn.addEventListener('mouseleave', () => {
     if (isPlaying) {
-        if (synthPtr !== 0) {
+        if (synth !== null) {
             isPlaying = false;
-            wasmExports.synth_note_off(synthPtr);
+            synth.note_off();
         }
         btn.classList.remove('active');
         btn.innerText = 'Hold to Play Note';
     }
 });
 
-initWasm();
+// Initialize on load
+initSynth();
