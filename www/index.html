@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rust WASM Synthesizer</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #4338ca;
+        }
+        button.active {
+            background: #22c55e;
+        }
+        #status {
+            margin-top: 15px;
+            color: #a1a1aa;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Rust WASM Synthesizer</h1>
+        <p>Play a 440Hz Sine Note using your compiled Rust DSP code!</p>
+        <div>
+            <button id="noteBtn">Hold to Play Note</button>
+        </div>
+        <div id="status">Status: Loading WASM...</div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
