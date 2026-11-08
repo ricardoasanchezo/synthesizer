@@ -653,7 +653,6 @@ version = "0.1.0"
 dependencies = [
  "cpal",
  "hound",
- "wasm-bindgen",
 ]
 
 [[package]]

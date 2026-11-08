@@ -1,7 +1,5 @@
 use std::f32::consts::TAU;
-use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen]
 #[derive(Clone, Copy, Debug)]
 pub enum Waveform {
     Sine = 0,
