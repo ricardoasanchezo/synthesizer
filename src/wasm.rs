@@ -24,6 +24,10 @@ impl WebSynth {
         self.voice.note_off();
     }
 
+    pub fn set_waveform(&mut self, waveform: Waveform) {
+        self.voice.set_waveform(waveform);
+    }
+
     pub fn next_sample(&mut self) -> f32 {
         self.voice.next_sample() * 0.2
     }

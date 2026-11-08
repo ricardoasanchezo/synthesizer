@@ -1,11 +1,13 @@
 use std::f32::consts::TAU;
+use wasm_bindgen::prelude::*;
 
+#[wasm_bindgen]
 #[derive(Clone, Copy, Debug)]
 pub enum Waveform {
-    Sine,
-    Square,
-    Saw,
-    Triangle,
+    Sine = 0,
+    Square = 1,
+    Saw = 2,
+    Triangle = 3,
 }
 
 pub struct Oscillator {
@@ -59,5 +61,9 @@ impl Oscillator {
 
     pub fn set_freq(&mut self, freq: f32) {
         self.freq = freq;
+    }
+
+    pub fn set_waveform(&mut self, waveform: Waveform) {
+        self.waveform = waveform;
     }
 }

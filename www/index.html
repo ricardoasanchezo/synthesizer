@@ -22,6 +22,18 @@
             box-shadow: 0 8px 24px rgba(0,0,0,0.5);
             text-align: center;
         }
+        .control-group {
+            margin: 20px 0;
+        }
+        select {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            padding: 8px 12px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
         button {
             background: #4f46e5;
             color: white;
@@ -49,7 +61,15 @@
 <body>
     <div class="card">
         <h1>Rust WASM Synthesizer</h1>
-        <p>Play a 440Hz Sine Note using your compiled Rust DSP code!</p>
+        <div class="control-group">
+            <label for="waveformSelect">Waveform: </label>
+            <select id="waveformSelect">
+                <option value="0">Sine</option>
+                <option value="1">Square</option>
+                <option value="2">Saw</option>
+                <option value="3">Triangle</option>
+            </select>
+        </div>
         <div>
             <button id="noteBtn">Hold to Play Note</button>
         </div>

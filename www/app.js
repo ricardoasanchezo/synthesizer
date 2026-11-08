@@ -1,4 +1,4 @@
-import init, { WebSynth } from './../pkg/synthesizer.js';
+import init, { WebSynth, Waveform } from '../pkg/synthesizer.js';
 
 /** @type {AudioContext | null} */
 let audioCtx = null;
@@ -10,16 +10,30 @@ let isPlaying = false;
 
 async function initSynth() {
     try {
-        // 1. Initialize the WASM module
         await init();
 
-        // 2. Create audio context
         audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 44100 });
-
-        // 3. Create our Rust synth object instance directly using JS 'new'!
         synth = new WebSynth(audioCtx.sampleRate);
 
-        // 4. Set up ScriptProcessor to pull samples
+        // Map dropdown values to imported WASM Waveform enum values
+        const waveforms = [
+            Waveform.Sine,
+            Waveform.Square,
+            Waveform.Saw,
+            Waveform.Triangle
+        ];
+
+        const wfSelect = /** @type {HTMLSelectElement} */ (document.getElementById('waveformSelect'));
+        synth.set_waveform(waveforms[parseInt(wfSelect.value, 10)]);
+
+        wfSelect.addEventListener('change', (e) => {
+            if (synth !== null) {
+                const target = /** @type {HTMLSelectElement} */ (e.target);
+                const index = parseInt(target.value, 10);
+                synth.set_waveform(waveforms[index]);
+            }
+        });
+
         const bufferSize = 4096;
         const scriptNode = audioCtx.createScriptProcessor(bufferSize, 0, 1);
 

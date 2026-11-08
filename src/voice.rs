@@ -23,6 +23,10 @@ impl Voice {
         self.env.note_off();
     }
 
+    pub fn set_waveform(&mut self, waveform: Waveform) {
+        self.osc.set_waveform(waveform);
+    }
+
     pub fn next_sample(&mut self) -> f32 {
         self.osc.next_sample() * self.env.next_sample()
     }
