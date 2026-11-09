@@ -2,25 +2,25 @@
 
 A modular software synthesizer written in Rust, compiled to WebAssembly, and running in the browser via Web Audio API (`AudioWorklet`).
 
-## Features
-- **Rust DSP Engine**: Oscillator (Sine, Square, Saw, Triangle) and ADSR Envelope.
-- **WebAssembly**: Compiled to WebAssembly with zero dependencies for the audio engine.
-- **AudioWorklet**: Real-time audio rendering thread for zero UI stuttering.
-- **Web MIDI**: Plug in any hardware MIDI keyboard to play.
+## Project Structure
+- `backend/`: Rust DSP engine and WASM bindings (`Cargo.toml`).
+- `frontend/`: TypeScript frontend, HTML, and audio worklet processor (`package.json`, `tsconfig.json`).
+- `scripts/`: Build and utility scripts.
 
 ---
 
 ## Prerequisites
 - [Rust](https://rustup.rs/) (edition 2024)
+- Node.js & npm (for TypeScript)
 - Python 3 (for local static server)
 
 ---
 
 ## Build & Run Steps
 
-1. **Compile to WebAssembly**:
+1. **Build the Application (Backend & Frontend)**:
    ```bash
-   cargo build --target wasm32-unknown-unknown --lib
+   ./scripts/build.sh
    ```
 
 2. **Start Local Static Server**:
@@ -30,7 +30,7 @@ A modular software synthesizer written in Rust, compiled to WebAssembly, and run
 
 3. **Open in Browser**:
    Navigate to:
-   `http://localhost:8000/www/`
+   `http://localhost:8000/frontend/`
 
 ---
 

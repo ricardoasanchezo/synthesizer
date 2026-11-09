@@ -1,0 +1,13 @@
+{
+  "name": "synthesizer-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TypeScript frontend for Rust WASM Synthesizer",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
