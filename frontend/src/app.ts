@@ -1,8 +1,10 @@
 import { WaveformType } from './types.js';
+import { CanvasPiano } from './piano.js';
 
 let audioCtx: AudioContext | null = null;
 let synthNode: AudioWorkletNode | null = null;
 let isInitializing = false;
+let piano: CanvasPiano | null = null;
 
 async function initAudio(): Promise<void> {
     if (audioCtx) {
@@ -44,6 +46,27 @@ async function initAudio(): Promise<void> {
     if (statusEl) {
         statusEl.innerText = 'Status: AudioWorklet Ready!';
     }
+
+    const pianoContainer = document.getElementById('pianoContainer');
+    if (pianoContainer && !piano) {
+        piano = new CanvasPiano(
+            pianoContainer,
+            async (note) => {
+                await initAudio();
+                const freq = midiNoteToFreq(note);
+                if (synthNode) {
+                    synthNode.port.postMessage({ type: 'NOTE_ON', data: { freq } });
+                }
+            },
+            () => {
+                if (synthNode) {
+                    synthNode.port.postMessage({ type: 'NOTE_OFF' });
+                }
+            },
+            48, // C3
+            36  // 3 octaves
+        );
+    }
 }
 
 function midiNoteToFreq(note: number): number {
@@ -64,8 +87,10 @@ async function handleMIDIMessage(event: MIDIMessageEvent): Promise<void> {
 
     if (command === 9 && velocity > 0) {
         const freq = midiNoteToFreq(note);
+        if (piano) piano.noteOn(note);
         synthNode.port.postMessage({ type: 'NOTE_ON', data: { freq } });
     } else if (command === 8 || (command === 9 && velocity === 0)) {
+        if (piano) piano.noteOff(note);
         synthNode.port.postMessage({ type: 'NOTE_OFF' });
     }
 }
@@ -93,7 +118,7 @@ async function initMIDI(): Promise<void> {
     }
 }
 
-const btn = document.getElementById('noteBtn') as HTMLButtonElement | null;
+const btn = document.getElementById('noteBtn');
 
 if (btn) {
     btn.addEventListener('mousedown', async () => {
