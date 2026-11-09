@@ -34,7 +34,8 @@ A modular software synthesizer written in Rust, compiled to WebAssembly, and run
 
 ---
 
-## Usage
-- Click **"Hold to Play Note"** to test audio.
-- Change the waveform using the dropdown selector.
-- Connect a MIDI controller via USB to play notes directly.
+## Usage & Controls
+- **On-Screen Canvas Piano**: Click or touch keys to play.
+- **Computer Keyboard**: Use keys `A` through `K` (white keys) and `W`, `E`, `T`, `Y`, `U` (black keys).
+- **Web MIDI**: Connect any USB MIDI controller to play notes directly.
+- **Waveform Selector**: Change synth waveform dynamically.

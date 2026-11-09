@@ -6,8 +6,28 @@ export class CanvasPiano {
     private onNoteOff: (midiNote: number) => void;
 
     // MIDI note range: Default 3 octaves starting from C3 (MIDI 48) to C6 (MIDI 84)
+    private keyMap: Record<string, number> = {
+        'a': 48, // C3
+        'w': 49, // C#3
+        's': 50, // D3
+        'e': 51, // D#3
+        'd': 52, // E3
+        'f': 53, // F3
+        't': 54, // F#3
+        'g': 55, // G3
+        'y': 56, // G#3
+        'h': 57, // A3
+        'u': 58, // A#3
+        'j': 59, // B3
+        'k': 60, // C4
+        'o': 61, // C#4
+        'l': 62, // D4
+        'p': 63, // D#4
+        ';': 64, // E4
+    };
+    private activeKeys: Set<string> = new Set();
     private startNote: number = 48;
-    private numKeys: number = 36; // 3 octaves (21 white keys, 15 black keys approximately)
+    private numKeys: number = 36;
     private pressedKeyIndex: number | null = null;
 
     constructor(
@@ -196,6 +216,26 @@ export class CanvasPiano {
             if (this.pressedKeyIndex !== null) {
                 this.noteOff(this.pressedKeyIndex);
                 this.pressedKeyIndex = null;
+            }
+        });
+
+        // Computer Keyboard support
+        window.addEventListener('keydown', (e) => {
+            if (e.repeat) return;
+            const key = e.key.toLowerCase();
+            const note = this.keyMap[key];
+            if (note !== undefined && !this.activeKeys.has(key)) {
+                this.activeKeys.add(key);
+                this.noteOn(note);
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            const note = this.keyMap[key];
+            if (note !== undefined && this.activeKeys.has(key)) {
+                this.activeKeys.delete(key);
+                this.noteOff(note);
             }
         });
     }
