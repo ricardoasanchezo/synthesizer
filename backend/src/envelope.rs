@@ -44,6 +44,10 @@ impl Envelope {
         }
     }
 
+    pub fn is_active(&self) -> bool {
+        !matches!(self.stage, Stage::Idle)
+    }
+
     pub fn next_sample(&mut self) -> f32 {
         match self.stage {
             Stage::Idle => {}

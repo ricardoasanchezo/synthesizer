@@ -5,7 +5,10 @@ export class CanvasPiano {
     private onNoteOn: (midiNote: number) => void;
     private onNoteOff: (midiNote: number) => void;
 
-    // MIDI note range: Default 3 octaves starting from C3 (MIDI 48) to C6 (MIDI 84)
+    private startNote: number = 48;
+    private numKeys: number = 36;
+    private pressedKeyIndex: number | null = null;
+
     private keyMap: Record<string, number> = {
         'a': 48, // C3
         'w': 49, // C#3
@@ -25,10 +28,28 @@ export class CanvasPiano {
         'p': 63, // D#4
         ';': 64, // E4
     };
+
+    private noteToKey: Record<number, string> = {
+        48: 'A',
+        49: 'W',
+        50: 'S',
+        51: 'E',
+        52: 'D',
+        53: 'F',
+        54: 'T',
+        55: 'G',
+        56: 'Y',
+        57: 'H',
+        58: 'U',
+        59: 'J',
+        60: 'K',
+        61: 'O',
+        62: 'L',
+        63: 'P',
+        64: ';',
+    };
+
     private activeKeys: Set<string> = new Set();
-    private startNote: number = 48;
-    private numKeys: number = 36;
-    private pressedKeyIndex: number | null = null;
 
     constructor(
         container: HTMLElement,
@@ -104,20 +125,36 @@ export class CanvasPiano {
                 // Border
                 this.ctx.strokeStyle = '#d1d5db';
                 this.ctx.strokeRect(x, 0, whiteKeyWidth - 1, height);
+
+                // Draw label if mapped
+                const label = this.noteToKey[n];
+                if (label) {
+                    this.ctx.fillStyle = isActive ? '#ffffff' : '#6b7280';
+                    this.ctx.font = '12px sans-serif';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText(label, x + whiteKeyWidth / 2, height - 15);
+                }
             }
         }
 
         // 2. Draw Black Keys
         for (let n = this.startNote; n < this.startNote + this.numKeys; n++) {
             if (this.isBlackKey(n)) {
-                // Find position relative to adjacent white key
-                // Black key sits between white key (n-1) and (n+1)
                 const leftWhiteIdx = this.getWhiteKeyIndex(n - 1);
                 const x = (leftWhiteIdx + 1) * whiteKeyWidth - (blackKeyWidth / 2);
                 const isActive = this.activeNotes.has(n);
 
                 this.ctx.fillStyle = isActive ? '#4f46e5' : '#1f2937';
                 this.ctx.fillRect(x, 0, blackKeyWidth, blackKeyHeight);
+
+                // Draw label if mapped
+                const label = this.noteToKey[n];
+                if (label) {
+                    this.ctx.fillStyle = '#ffffff';
+                    this.ctx.font = '10px sans-serif';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText(label, x + blackKeyWidth / 2, blackKeyHeight - 15);
+                }
             }
         }
     }
@@ -134,7 +171,6 @@ export class CanvasPiano {
         const blackKeyWidth = whiteKeyWidth * 0.6;
         const blackKeyHeight = this.canvas.height * 0.6;
 
-        // Check black keys first (since they are on top)
         if (y <= blackKeyHeight) {
             for (let n = this.startNote; n < this.startNote + this.numKeys; n++) {
                 if (this.isBlackKey(n)) {
@@ -147,7 +183,6 @@ export class CanvasPiano {
             }
         }
 
-        // Check white keys
         const whiteIdx = Math.floor(x / whiteKeyWidth);
         let currentWhiteCount = 0;
         for (let n = this.startNote; n < this.startNote + this.numKeys; n++) {
@@ -200,26 +235,7 @@ export class CanvasPiano {
             }
         });
 
-        // Touch support
-        this.canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const note = this.getNoteFromCoords(touch.clientX, touch.clientY);
-            if (note !== null) {
-                this.pressedKeyIndex = note;
-                this.noteOn(note);
-            }
-        });
-
-        this.canvas.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            if (this.pressedKeyIndex !== null) {
-                this.noteOff(this.pressedKeyIndex);
-                this.pressedKeyIndex = null;
-            }
-        });
-
-        // Computer Keyboard support
+        // Computer Keyboard support (Polyphonic)
         window.addEventListener('keydown', (e) => {
             if (e.repeat) return;
             const key = e.key.toLowerCase();

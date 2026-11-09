@@ -34,7 +34,7 @@ class SynthProcessor extends AudioWorkletProcessor {
                 if (type === 'NOTE_ON') {
                     this.exports.synth_note_on(this.synthPtr, event.data.data.freq);
                 } else if (type === 'NOTE_OFF') {
-                    this.exports.synth_note_off(this.synthPtr);
+                    this.exports.synth_note_off(this.synthPtr, event.data.data.freq);
                 } else if (type === 'SET_WAVEFORM') {
                     this.exports.synth_set_waveform(this.synthPtr, event.data.data.waveformIndex);
                 }

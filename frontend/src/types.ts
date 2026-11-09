@@ -16,6 +16,9 @@ export interface NoteOnMessage {
 
 export interface NoteOffMessage {
     type: 'NOTE_OFF';
+    data: {
+        freq: number;
+    };
 }
 
 export interface SetWaveformMessage {
@@ -31,7 +34,7 @@ export interface WasmExports {
     synth_create(sampleRate: number): number;
     synth_destroy(ptr: number): void;
     synth_note_on(ptr: number, freq: number): void;
-    synth_note_off(ptr: number): void;
+    synth_note_off(ptr: number, freq: number): void;
     synth_set_waveform(ptr: number, waveform: number): void;
     synth_next_sample(ptr: number): number;
 }

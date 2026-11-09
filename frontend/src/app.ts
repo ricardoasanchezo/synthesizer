@@ -58,9 +58,10 @@ async function initAudio(): Promise<void> {
                     synthNode.port.postMessage({ type: 'NOTE_ON', data: { freq } });
                 }
             },
-            () => {
+            (note) => {
+                const freq = midiNoteToFreq(note);
                 if (synthNode) {
-                    synthNode.port.postMessage({ type: 'NOTE_OFF' });
+                    synthNode.port.postMessage({ type: 'NOTE_OFF', data: { freq } });
                 }
             },
             48, // C3
@@ -85,13 +86,13 @@ async function handleMIDIMessage(event: MIDIMessageEvent): Promise<void> {
 
     if (!synthNode) return;
 
+    const freq = midiNoteToFreq(note);
     if (command === 9 && velocity > 0) {
-        const freq = midiNoteToFreq(note);
         if (piano) piano.noteOn(note);
         synthNode.port.postMessage({ type: 'NOTE_ON', data: { freq } });
     } else if (command === 8 || (command === 9 && velocity === 0)) {
         if (piano) piano.noteOff(note);
-        synthNode.port.postMessage({ type: 'NOTE_OFF' });
+        synthNode.port.postMessage({ type: 'NOTE_OFF', data: { freq } });
     }
 }
 
@@ -118,34 +119,6 @@ async function initMIDI(): Promise<void> {
     }
 }
 
-const btn = document.getElementById('noteBtn');
-
-if (btn) {
-    btn.addEventListener('mousedown', async () => {
-        await initAudio();
-        if (synthNode) {
-            synthNode.port.postMessage({ type: 'NOTE_ON', data: { freq: 440.0 } });
-        }
-        btn.classList.add('active');
-        btn.innerText = 'Playing (440Hz)...';
-    });
-
-    btn.addEventListener('mouseup', () => {
-        if (synthNode) {
-            synthNode.port.postMessage({ type: 'NOTE_OFF' });
-        }
-        btn.classList.remove('active');
-        btn.innerText = 'Hold to Play Note';
-    });
-
-    btn.addEventListener('mouseleave', () => {
-        if (synthNode) {
-            synthNode.port.postMessage({ type: 'NOTE_OFF' });
-        }
-        btn.classList.remove('active');
-        btn.innerText = 'Hold to Play Note';
-    });
-}
-
+initAudio();
 // Initialize MIDI listener on load
 initMIDI();
