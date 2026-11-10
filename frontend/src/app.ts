@@ -19,7 +19,7 @@ async function initAudio(): Promise<void> {
     const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     audioCtx = new AudioContextClass();
 
-    const response = await fetch('../../backend/target/wasm32-unknown-unknown/debug/synthesizer.wasm');
+    const response = await fetch('dist/synthesizer.wasm');
     const wasmBytes = await response.arrayBuffer();
 
     await audioCtx.audioWorklet.addModule('dist/synth-processor.js');

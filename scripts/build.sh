@@ -15,4 +15,8 @@ fi
 npx tsc
 cd ..
 
+echo "=== Copying WASM binary to frontend ==="
+mkdir -p frontend/dist
+cp backend/target/wasm32-unknown-unknown/debug/synthesizer.wasm frontend/dist/synthesizer.wasm
+
 echo "=== Build Complete! ==="
