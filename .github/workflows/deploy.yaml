@@ -8,7 +8,7 @@ on:
 
 concurrency:
   group: deploy-${{ github.ref }}
-  cancel-in-progress: false # never cancel a running terraform apply
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -25,11 +25,12 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
-      - uses: jetli/wasm-pack-action@v0.4.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-      # Adjust to match how you build locally
-      - name: Build WASM
-        run: wasm-pack build --release --target web --out-dir frontend/pkg
+      - name: Run Build Script
+        run: ./scripts/build.sh
 
       - uses: actions/upload-artifact@v4
         with:
@@ -40,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: infra
+        working-directory: terraform
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
